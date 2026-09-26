@@ -1,0 +1,464 @@
+
+/* ===================================================================
+   PREMIUM MOTION DESIGN SYSTEM — FIXED & ALIGNED
+   All bugs from initial implementation resolved.
+   =================================================================== */
+
+/* --- Motion CSS Variables --- */
+:root {
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-quart: cubic-bezier(0.76, 0, 0.24, 1);
+  --dur-slow: 0.85s;
+  --delay: 0s;
+  --stagger: 0;
+}
+
+/* ===================================================================
+   SCROLL REVEAL BASE CLASSES
+   Elements start invisible and reveal when .is-visible is added by JS.
+   CRITICAL: Use opacity+transform only (GPU-safe, no layout reflow).
+   =================================================================== */
+.reveal-up,
+.reveal-fade,
+.reveal-scale {
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-expo),
+              transform var(--dur-slow) var(--ease-expo);
+  transition-delay: var(--delay, 0s);
+}
+.reveal-up    { transform: translateY(28px); }
+.reveal-fade  { transform: translateY(12px); }
+.reveal-scale { transform: scale(0.95) translateY(16px); }
+
+.reveal-up.is-visible,
+.reveal-fade.is-visible,
+.reveal-scale.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ===================================================================
+   SECTION ORBS — AMBIENT ATMOSPHERIC LIGHT
+   CRITICAL FIX: Do NOT add overflow:hidden to .section — it clips
+   the scroll-hint absolute position and the polaroid hover z-index.
+   Orbs are clipped by .section-orbs container instead.
+   =================================================================== */
+.section-orbs {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;    /* clips orbs within this container, not the whole section */
+  border-radius: inherit;
+}
+
+/* Ensure all section content sits above orb layer */
+.section-container {
+  position: relative;
+  z-index: 2;
+}
+
+/* Additional z-index bumps for specific floating elements */
+.intro-badge,
+.intro-title,
+.intro-subtitle,
+.intro-action {
+  position: relative;
+  z-index: 2;
+}
+
+.ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  will-change: transform;
+  animation: orb-drift 28s ease-in-out infinite;
+}
+
+/* Warm section orbs (prologue, timeline, memories, unsaid, question, special, diary, letter) */
+.warm-theme .ambient-orb.orb-1 {
+  width: min(50vw, 520px);
+  height: min(50vw, 520px);
+  background: radial-gradient(circle, rgba(212,175,55,0.15) 0%, transparent 70%);
+  top: -15%;
+  right: -12%;
+  animation-duration: 30s;
+}
+.warm-theme .ambient-orb.orb-2 {
+  width: min(40vw, 420px);
+  height: min(40vw, 420px);
+  background: radial-gradient(circle, rgba(122,28,48,0.08) 0%, transparent 70%);
+  bottom: -8%;
+  left: -8%;
+  animation-duration: 36s;
+  animation-delay: -12s;
+}
+
+/* Dark section orbs (intro, video, final) */
+.dark-theme .ambient-orb.orb-1 {
+  width: min(55vw, 600px);
+  height: min(55vw, 600px);
+  background: radial-gradient(circle, rgba(122,28,48,0.2) 0%, transparent 65%);
+  top: -20%;
+  right: -15%;
+  animation-duration: 32s;
+}
+.dark-theme .ambient-orb.orb-2 {
+  width: min(40vw, 460px);
+  height: min(40vw, 460px);
+  background: radial-gradient(circle, rgba(60,30,100,0.25) 0%, transparent 65%);
+  bottom: -5%;
+  left: -12%;
+  animation-duration: 40s;
+  animation-delay: -16s;
+}
+.dark-theme .ambient-orb.orb-3 {
+  width: min(30vw, 340px);
+  height: min(30vw, 340px);
+  background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, transparent 65%);
+  top: 35%;
+  left: 25%;
+  animation-duration: 26s;
+  animation-delay: -8s;
+}
+
+/* Final reveal — brighter orbs */
+.final-reveal-section .ambient-orb.orb-1 {
+  background: radial-gradient(circle, rgba(212,175,55,0.25) 0%, transparent 65%);
+}
+.final-reveal-section .ambient-orb.orb-2 {
+  background: radial-gradient(circle, rgba(122,28,48,0.22) 0%, transparent 65%);
+}
+.final-reveal-section .ambient-orb.orb-3 {
+  background: radial-gradient(circle, rgba(180,140,60,0.15) 0%, transparent 65%);
+}
+
+@keyframes orb-drift {
+  0%   { transform: translate(0, 0) scale(1); }
+  25%  { transform: translate(4%, 7%) scale(1.03); }
+  50%  { transform: translate(8%, 1%) scale(0.97); }
+  75%  { transform: translate(2%, 9%) scale(1.04); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+/* ===================================================================
+   CUSTOM CURSOR (DESKTOP ONLY)
+   =================================================================== */
+@media (hover: hover) and (pointer: fine) {
+  body { cursor: none; }
+  a, button, [role="button"],
+  .polaroid-card, .unsaid-card, .special-card,
+  .timeline-item, .envelope-wrapper, .video-overlay-play {
+    cursor: none;
+  }
+
+  .custom-cursor {
+    position: fixed;
+    top: 0; left: 0;
+    width: 10px; height: 10px;
+    background: var(--accent-gold);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 99999;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s var(--ease-expo),
+                height 0.2s var(--ease-expo),
+                opacity 0.3s ease;
+  }
+
+  .custom-cursor-ring {
+    position: fixed;
+    top: 0; left: 0;
+    width: 34px; height: 34px;
+    border: 1.5px solid rgba(212,175,55,0.45);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 99998;
+    transform: translate(-50%, -50%);
+    transition: width 0.35s var(--ease-expo),
+                height 0.35s var(--ease-expo),
+                border-color 0.25s ease,
+                opacity 0.3s ease;
+  }
+
+  .custom-cursor.cursor-active  { width: 6px; height: 6px; }
+  .custom-cursor-ring.cursor-active {
+    width: 46px; height: 46px;
+    border-color: rgba(212,175,55,0.8);
+  }
+  .custom-cursor.cursor-hidden,
+  .custom-cursor-ring.cursor-hidden { opacity: 0; }
+}
+
+/* ===================================================================
+   BUTTON MICRO-INTERACTIONS
+   =================================================================== */
+.btn {
+  position: relative;
+  overflow: hidden;
+}
+.btn::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%; height: 100%;
+  background: linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.1) 50%, transparent 80%);
+  transition: left 0.5s ease;
+  pointer-events: none;
+}
+.btn:hover::after { left: 150%; }
+.btn:active { transform: translateY(1px) scale(0.97) !important; }
+
+/* Gold button gentle pulse */
+.btn-celebrate {
+  animation: celebrate-pulse 2.6s ease-in-out infinite;
+}
+@keyframes celebrate-pulse {
+  0%, 100% { box-shadow: 0 8px 30px rgba(212,175,55,0.35); }
+  50%       { box-shadow: 0 14px 44px rgba(212,175,55,0.6); }
+}
+
+/* ===================================================================
+   PHOTO GALLERY — STAGGER REVEAL
+   CRITICAL FIX: Initial state must NOT conflict with style.css
+   rotate transforms. We override carefully.
+   =================================================================== */
+.polaroid-card {
+  --stagger: 0;
+  opacity: 0;
+  transition: opacity 0.6s var(--ease-expo),
+              transform 0.6s var(--ease-expo),
+              box-shadow 0.35s ease;
+  transition-delay: calc(var(--stagger) * 0.08s);
+  transform: translateY(24px) rotate(-1.5deg);
+}
+.polaroid-card:nth-child(even) {
+  transform: translateY(24px) rotate(1.5deg);
+}
+.polaroid-card.is-visible {
+  opacity: 1;
+  transform: translateY(0) rotate(-1.5deg);
+}
+.polaroid-card:nth-child(even).is-visible {
+  opacity: 1;
+  transform: translateY(0) rotate(1.5deg);
+}
+.polaroid-card:hover {
+  transform: translateY(-8px) rotate(0deg) scale(1.02) !important;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+  z-index: 10;
+}
+
+/* Warm vignette on gallery card hover */
+.polaroid-img-box {
+  position: relative;
+}
+.polaroid-img-box::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(122,28,48,0.07) 100%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+  border-radius: 2px;
+}
+.polaroid-card:hover .polaroid-img-box::after { opacity: 1; }
+
+/* ===================================================================
+   UNSAID CARDS — STAGGER REVEAL
+   =================================================================== */
+.unsaid-card {
+  --stagger: 0;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s var(--ease-expo),
+              transform 0.6s var(--ease-expo),
+              border-color 0.3s ease,
+              box-shadow 0.3s ease;
+  transition-delay: calc(var(--stagger) * 0.1s);
+}
+.unsaid-card.is-visible { opacity: 1; transform: translateY(0); }
+.unsaid-card:hover { transform: translateY(-6px) !important; }
+
+/* ===================================================================
+   SPECIAL CARDS — STAGGER REVEAL
+   =================================================================== */
+.special-card {
+  --stagger: 0;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s var(--ease-expo),
+              transform 0.6s var(--ease-expo),
+              border-color 0.3s ease,
+              box-shadow 0.3s ease;
+  transition-delay: calc(var(--stagger) * 0.07s);
+}
+.special-card.is-visible { opacity: 1; transform: translateY(0); }
+.special-card:hover { transform: translateY(-4px) !important; }
+
+/* ===================================================================
+   TIMELINE ITEMS — REVEAL FROM LEFT
+   =================================================================== */
+.timeline-item {
+  --stagger: 0;
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity 0.65s var(--ease-expo),
+              transform 0.65s var(--ease-expo);
+  transition-delay: calc(var(--stagger) * 0.1s);
+}
+.timeline-item.is-visible { opacity: 1; transform: translateX(0); }
+.timeline-item.is-visible .timeline-dot {
+  animation: dot-pulse 0.5s var(--ease-expo) forwards;
+  animation-delay: 0.25s;
+}
+@keyframes dot-pulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.45); }
+  100% { transform: scale(1); }
+}
+
+/* ===================================================================
+   VIDEO CARDS — VISIBLE BY DEFAULT WITH FADE-IN REVEAL
+   CRITICAL FIX: clip-path was hiding video cards entirely on mobile.
+   Use simple opacity+translateY instead of clip-path.
+   =================================================================== */
+.video-card {
+  --stagger: 0;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.65s var(--ease-expo),
+              transform 0.65s var(--ease-expo),
+              border-color 0.3s ease;
+  transition-delay: calc(var(--stagger) * 0.15s);
+}
+.video-card.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.video-card:hover {
+  border-color: var(--border-gold);
+  transform: translateY(-4px) !important;
+}
+.video-card.is-visible .play-circle {
+  animation: play-breathe 3.2s ease-in-out infinite;
+}
+@keyframes play-breathe {
+  0%, 100% { box-shadow: 0 0 20px rgba(212,175,55,0.45); }
+  50%       { box-shadow: 0 0 34px rgba(212,175,55,0.75); }
+}
+
+/* ===================================================================
+   QUESTION — INPUT FOCUS & SUCCESS STATE
+   =================================================================== */
+.question-section.question-success {
+  background-color: #FDF8F0;
+  transition: background-color 1.2s ease;
+}
+
+/* ===================================================================
+   DIARY — HEADING REVEAL WITH BLUR
+   =================================================================== */
+.diary-header.reveal-up {
+  filter: blur(5px);
+  transition: opacity 0.9s var(--ease-expo),
+              transform 0.9s var(--ease-expo),
+              filter 0.8s ease;
+}
+.diary-header.reveal-up.is-visible { filter: blur(0); }
+
+/* ===================================================================
+   INTRO — SUBTLE RADIAL PULSE OVERLAY
+   =================================================================== */
+.intro-section {
+  background: radial-gradient(ellipse at 50% 40%, #221B35 0%, #0B0A0F 70%) !important;
+}
+.intro-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 60% 30%, rgba(212,175,55,0.05) 0%, transparent 60%);
+  animation: intro-radial-pulse 9s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes intro-radial-pulse {
+  0%   { opacity: 0.5; transform: scale(1); }
+  100% { opacity: 1;   transform: scale(1.12); }
+}
+
+/* ===================================================================
+   FINAL REVEAL — ENHANCED GLOW
+   =================================================================== */
+.final-reveal-section {
+  background: radial-gradient(ellipse at 50% 30%, #271E3D 0%, #0B0A0F 75%) !important;
+}
+.final-reveal-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(212,175,55,0.06) 0%, transparent 65%);
+  animation: final-radial-glow 7s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes final-radial-glow {
+  0%   { opacity: 0.5; transform: scale(1); }
+  100% { opacity: 1;   transform: scale(1.18); }
+}
+
+/* ===================================================================
+   PROGRESS NAV — HIDE NUMERIC COUNTER (per user request)
+   =================================================================== */
+.progress-counter {
+  display: none !important;
+}
+
+/* ===================================================================
+   MOBILE ADJUSTMENTS
+   =================================================================== */
+@media (max-width: 767px) {
+  .ambient-orb {
+    filter: blur(55px);
+    opacity: 0.7;
+  }
+  .reveal-up  { transform: translateY(16px); }
+  .reveal-fade { transform: translateY(8px); }
+}
+
+/* ===================================================================
+   PREFERS REDUCED MOTION — INSTANTLY SHOW EVERYTHING
+   =================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal-up, .reveal-fade, .reveal-scale,
+  .polaroid-card, .unsaid-card, .special-card,
+  .timeline-item, .video-card,
+  .diary-header.reveal-up {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+}
+
+
+/* --- Fix: preserve horizontal centering for scroll-hint --- */
+.scroll-hint.reveal-fade {
+  transform: translate(-50%, 12px) !important;
+}
+.scroll-hint.reveal-fade.is-visible {
+  transform: translateX(-50%) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-hint.reveal-fade {
+    transform: translateX(-50%) !important;
+  }
+}
